@@ -1,0 +1,271 @@
+\documentclass{beamer}
+
+\usepackage{fontspec}
+\usepackage{minted}
+\usepackage{forest}
+
+\setmainfont{CMU Serif}
+\setsansfont{CMU Sans Serif}
+\setmonofont{CMU Typewriter Text}
+
+\usetheme{Madrid}
+\usecolortheme{default}
+
+\title[Implementation of visitor pattern in C++]{Implementation of visitor pattern in C++ by using std::variant}
+\author[Popov, Karpenko]{Popov Ruslan (first-year student, group КІ-23-1), Karpenko Nadiia}
+\institute[DNU]{Faculty of Physics, Electronics and Computer Systems, Oles Honchar Dnipro National University, Haharina Ave, 72, Dnipro}
+\date[MEICS-2023]{MEICS, November 2023}
+
+\begin{document}
+    \begin{frame}
+        \titlepage
+    \end{frame}
+
+    \begin{frame}[fragile]{Abstract syntax tree}
+   \begin{exampleblock}{The source code:}
+\begin{minted}[fontsize=\small, tabsize=4]{c}
+int main()
+{
+    printf("hello world");
+    return 0;
+}
+\end{minted}
+\end{exampleblock}
+
+   \begin{block}{Parsing result (simplified):}
+                \begin{center}
+                    \begin{forest}
+                        /tikz/every node/.append style={font=\footnotesize},
+                        [func\_decl
+                            [int ]
+                            [main ]
+                            [block\_stmt
+                                    [call\_expr
+                                        [printf ]
+                                        ["hello world" ] ]
+                                [return\_stmt 
+                                    [0 ] ] ] ] ]	
+                    \end{forest}
+                \end{center}
+    \end{block}
+
+    \end{frame}
+
+    \begin{frame}{Functionality over AST}
+        \begin{block}{print$: AST \to String$}
+            print $Var(a)$ = $"a"$\\
+            print $UnaryOp(-, Var(b))$ = $"-b"$\\
+        \end{block}
+    
+        \begin{exampleblock}{eval$: AST \to Value$}
+            eval $Integer(7)$ = $7$\\
+            eval $BinOp(Integer(2), +, Integer(2))$ = $4$\\
+        \end{exampleblock}
+    
+        \begin{alertblock}{optimize$: AST \to AST$}
+            optimize $BinOp(Var(a), *, 4)$ = $BinOp(Var(a), <<, 2)$\\
+        \end{alertblock}
+    \end{frame}
+
+    \begin{frame}[fragile]{First attempt to solve expression problem}
+
+ \begin{alertblock}{Node interface}
+\begin{minted}[fontsize=\small, tabsize=4]{c++}
+struct Node {
+    virtual ~Node() {}
+    virtual std::string ToString() = 0;
+    virtual int Eval() = 0;
+    virtual Node* Optimize() = 0;
+};
+\end{minted}
+ \end{alertblock}
+\begin{block}{Binary expression node}
+\begin{minted}[fontsize=\small, tabsize=4]{c++}
+struct BinOp : Node {
+    Expr* left, right;
+    BinOpType op;
+    ...
+    virtual std::string ToString();
+    virtual int Eval();
+    virtual Node* Optimize();
+};
+\end{minted}
+\end{block}
+    \end{frame}
+
+    \begin{frame}[fragile]{Classical approach: Visitor pattern}
+        \begin{center}
+            \begin{forest}
+                [Expression problem
+                [AST node as a class
+                    (\textit{data}) ]
+                [\underline{Functionality as a \textbf{class}}
+                    (\textit{code}) ] ]
+            \end{forest}
+        \end{center}
+        
+        \begin{columns}
+            \begin{column}{0.47\textwidth}
+                \begin{exampleblock}{\small An AST node}
+\begin{minted}[fontsize=\tiny, tabsize=4]{c++}
+struct BinOp : Node {
+    Expr* left, right;
+    BinOpType op;
+    
+    virtual void Accept(Visitor* vis) {
+        vis->VisitBinOp(this);	
+    }
+};
+\end{minted}
+                \end{exampleblock}
+            \end{column}
+        
+            \begin{column}{0.47\textwidth}
+                \begin{block}{\small Visitor}
+\begin{minted}[fontsize=\tiny, tabsize=4]{c++}
+struct Visitor {
+    virtual void VisitInteger(Integer* expr) = 0;
+    virtual void VisitUnaryOp(UnaryOp* expr) = 0;
+    virtual void VisitBinOp(BinOp* expr) = 0;
+}
+\end{minted}
+                \end{block}
+            \end{column}
+        \end{columns}
+    \end{frame}
+
+    \begin{frame}{Problems with Visitor pattern}
+        \begin{itemize}
+            \item Not so easy to understand.
+            \item A lot of things to do in order to add a new AST node:
+            \begin{enumerate}
+                \item Create a new method \texttt{Visit} to \texttt{Visitor} interface.
+                \item Create a new method \texttt{Accept} in the new AST node.
+            \end{enumerate}
+        \end{itemize}
+        
+        \vspace{30pt}
+        
+        \begin{block}{A question}
+            Can we implement this pattern easier?
+        \end{block}
+    \end{frame}
+
+    \begin{frame}[fragile]{\texttt{std::variant} in C++}
+
+        \begin{columns}
+            \begin{column}{0.45\textwidth}
+\begin{block}{Until C++17}
+\begin{minted}[tabsize=4]{c++}
+// A simplified example.
+struct SumType {
+    int AsInteger();
+    bool IsInteger();
+    
+    ValueType GetType();
+    
+private:
+    ValueType type;
+    union {
+        int num;
+        ...
+    } as;
+};
+\end{minted}
+\end{block}
+            \end{column}
+
+            \begin{column}{0.5\textwidth}
+\begin{block}{Since C++17}
+\begin{minted}[tabsize=4]{c++}
+#include <variant>
+
+// Greatly reduced code size.
+using SumType =
+    std::variant<int, ...>;
+\end{minted}
+\end{block}
+            \end{column}
+        \end{columns}
+    \end{frame}
+    
+    \begin{frame}[fragile]{\texttt{std::visit} у C++}
+        \begin{block}{Declaration of \texttt{std::visit} since C++17}
+\begin{minted}[fontsize=\small, tabsize=4]{c++}
+template <class Visitor, class... Variants>
+constexpr /* ... */ visit(Visitor&& vis, Variants&&... vars);
+\end{minted}
+        \end{block}
+
+        \begin{center}
+            Usage example:
+        \end{center}
+\begin{minted}[tabsize=4]{c}
+struct MyVisitor {
+    std::string operator()(int arg)   { return "integer"; }
+    std::string operator()(bool arg)  { return "boolean"; }
+};
+
+int main() {
+    std::variant<int, bool> var = 10;
+    MyVisitor vis;
+    std::cout << std::visit(vis, var) << std::endl;
+    return 0;
+}
+\end{minted}
+    \end{frame}
+
+    \begin{frame}[fragile]{Our approach to expression problem}
+        \begin{block}{Represent abstract AST nodes as variants}
+\begin{minted}{c++}
+// A greately simplified example.
+using Expr = std::variant<Int, Unary, Binary, ...>;
+using Stmt = std::variant<If, While, Return, ...>;
+\end{minted}
+        \end{block}
+\begin{minted}[tabsize=4]{c}
+struct Printer {
+    std::string operator()(Int& expr);
+    ...
+    std::string operator()(If& stmt);
+    ...
+    std::string PrintExpr(Expr* expr) {
+        return std::visit(*this, *expr);
+    }
+};
+\end{minted}
+    \end{frame}
+
+    \begin{frame}{Some problems with our approach}
+        \begin{itemize}
+            \item \texttt{std::variant} is available since C++17 $\to$ earlier standards are not supported.
+            \item \texttt{std::variant} uses template metaprogramming $\to$ complex error reports.
+            \item Do not use an \texttt{Expr} inside an \texttt{Expr} or a \texttt{Stmt} inside a \texttt{Stmt} directly $\to$ structure inside itself.
+        \end{itemize}
+    \end{frame}
+
+    \begin{frame}{End of the report}
+        \begin{center}
+            \huge Conclusions
+        \end{center}
+    \end{frame}
+
+    \begin{frame}{End of the report}
+        \begin{center}
+            \huge Thanks for attention!
+        \end{center}
+        
+        \begin{exampleblock}{Additional information}
+            Source code: \textcolor{blue}{\href{https://github.com/InAnYan/AstVisitor}{https://github.com/InAnYan/AstVisitor}}.
+            
+            Email:  \textcolor{blue}{ \href{mailto:popov_ro@fffeks.dnu.edu.ua}{popov\_ro@fffeks.dnu.edu.ua}}.
+        \end{exampleblock}
+        
+        \begin{block}{Authors}
+            \textbf{Popov Ruslan (first-year student, group КІ-23-1), Karpenko Nadiia}.
+            
+            \textit{Faculty of Physics, Electronics and Computer Systems, Oles Honchar Dnipro National University, Haharina Ave, 72, Dnipro}
+        \end{block}
+    \end{frame}
+\end{document}
+
