@@ -10,7 +10,7 @@ Faculty of Physics, Electronics and Computer Systems, Oles Honchar Dnipro Nation
 ## Annotation
 In this paper we presented a new way to implement the Visitor pattern in C++ by using the standard container std::variant. We have shown how this method solves the expression problem and simplifies the creation of compilers and interpreters. We compared the classical approach with ours and highlighted all the pros and cons of the new solution.
 
-## Текст статті
+## Text of the paper
 When developing compilers and interpreters, the problem of organizing and modeling the nodes of an abstract syntax tree (AST) arises. These programs can perform various actions on the AST. For example, a compiler can optimize a program (the result of such an action is a new tree), an interpreter can execute a program, for example, a function can return a value, but it can also cause side effects, such as changing the state of an object, outputting information to the console or log file, etc. So, the problem arises of encoding the tree in such a way that you can easily add functions to process this tree. This problem is called "expression problem" in foreign literature [1].
 
 Usually, in object-oriented programming languages such as C++ or Java, AST is represented as a hierarchy of classes. Methods of working on this tree are transferred to special classes that implement the `Visitor` interface. `Visitor` is a pattern that allows you to add new functions to classes without changing them. It turns out that the data of the AST node and the code that works on it are divided into two classes: the AST node and the visitor [2].
