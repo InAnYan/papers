@@ -1,27 +1,30 @@
----
-abstract: |
-  We present a system that solves simple physics word problems (PWPs)
-  stated in the English language. PWP is an interesting subfield of word
-  problems that is not studied as deeply as math word problems (MWPs).
-  We described the process of analyzing English text, the representation
-  of problems, and algorithms for finding the solution. We have
-  researched the types of PWPs and described their problem-solving
-  strategies. We have noted the peculiarities that PWPs introduce in
-  comparison to MWPs. We discussed the capabilities and limitations of
-  our implementation and proposed future research areas.
-author:
-- |
-  Ruslan Popov, Nadiia Karpenko\
-  Oles Honchar Dnipro National University (Ukraine)
-bibliography: lit.bib
-title: Automatic solving of physics word problems
----
+# Title
+Automatic solving of physics word problems
 
-***Keywords---*** physics word problems, automatic problem solving,
+# Authors
+- Ruslan Popov
+- Nadiia Karpenko
+
+# University
+Faculty of Physics, Electronics and Computer Systems, Oles Honchar Dnipro National University, Haharina Ave, 72, Dnipro
+
+# Abstract
+We present a system that solves simple physics word problems (PWPs)
+stated in the English language. PWP is an interesting subfield of word
+problems that is not studied as deeply as math word problems (MWPs).
+We described the process of analyzing English text, the representation
+of problems, and algorithms for finding the solution. We have
+researched the types of PWPs and described their problem-solving
+strategies. We have noted the peculiarities that PWPs introduce in
+comparison to MWPs. We discussed the capabilities and limitations of
+our implementation and proposed future research areas.
+
+# Keywords 
+physics word problems, automatic problem solving,
 artificial intelligence, natural language processing, natural language
-understanding..
+understanding.
 
-# INTRODUCTION
+# Introduction
 
 With the publication of Large Language Models (LLMs), students are
 tempted to solve their school problems by using AIs such as ChatGPT,
@@ -60,7 +63,7 @@ problems in a correct and deterministic way, where programs utilize the
 field knowledge, rules, and definitions to give a strict and accurate
 answer.
 
-# LITERATURE ANALYSIS
+# Literature analysis
 
 ## STUDENT: Pioneer AI program
 
@@ -69,9 +72,9 @@ understand natural language, showing promising results [@student]. The
 program solves algebraic word problems stated in English. An example of
 the problem that STUDENT can handle:
 
-"*If the number of customers Tom gets is twice the square of 20% of the
-number of advertisements he runs, and the number of advertisements is
-45, then what is the number of customers Tom gets?*""
+> If the number of customers Tom gets is twice the square of 20% of the
+> number of advertisements he runs, and the number of advertisements is
+> 45, then what is the number of customers Tom gets?
 
 The STUDENT approach is straightforward: the problem is represented as a
 set of simultaneous equations; the solution of the problem is the
@@ -79,13 +82,13 @@ solution for that set. The program used pattern matching and kernel
 sentence theory to transform English text into a set of equations. For
 the example above, STUDENT would generate this system:
 
-$$\begin{cases}
+$$
+\begin{cases}
         (CUSTOMERS) = 2 * (0.2 + (ADVERTISMENTS)) ^ 2 \\
-        
         (ADVERTISMENTS) = 45 \\
-        
         ? = (CUSTOMERS)
-    \end{cases}$$
+\end{cases}
+$$
 
 Words in the problem text resemble mathematical operations and
 variables, so the STUDENT can translate the English text into
@@ -227,13 +230,13 @@ kilometers and the time the automobile has traveled is 6 hours, then
 what is the speed of the automobile?*". The STUDENT would generate this
 set of equations:
 
-$$\begin{cases}
-        (DISTANCE) = 477\ kilometers \\
-        
-        (TIME) = 6\ hours \\
-        
+$$
+\begin{cases}
+        (DISTANCE) = 477 kilometers \\
+        (TIME) = 6 hours \\
         ? = (SPEED)
-    \end{cases}$$
+\end{cases}
+$$
 
 As the reader may notice, the STUDENT has generated a system consisting
 of given values and unknowns. This set would resemble the column
@@ -266,7 +269,7 @@ unstandardized programming languages with undefined styles of
 programming. The analysis of the capabilities and limitations of
 previous works is not enough.
 
-# OBJECT, SUBJECT, AND METHODS OF RESEARCH
+# Object, subject, and methods of research
 
 ## Object and subject
 
@@ -297,8 +300,12 @@ correct problem solution.
 The whole NLP pipeline, algorithms, and data structures that are used by
 our program can be depicted through this diagram:
 
-![Algorithms and data structures of our
-program.](media/image2.png){width="75%"}
+<p align="center">
+  <img src="media/image2.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 1: Algorithms and data structures of our program.
+</p>
 
 In fig. 1 nodes represent algorithms, right after the node comes a brief
 comment on the chosen approach, and the labels of the arrows are data
@@ -313,7 +320,7 @@ To test our program, we created a small dataset with physics problems
 collected from various sources such as [@ukr_ph_1], [@ukr_ph_2], and the
 Internet. We translated the Ukrainian variants to English.
 
-# DESCRIPTION OF THE PROGRAM
+# Description of the program
 
 ## Problem types
 
@@ -365,69 +372,75 @@ present the patterns we used for NER with our modified BNF notation
 because there is no standardized way to do this. In this notation, no
 recursion is allowed. Terminals are written as is and may resemble
 either the lowercase form of a token or its lemma. Non-terminals are
-written inside '\<' and '\>'. Entities are written as non-terminals
+written inside '<' and '>'. Entities are written as non-terminals
 whose names are written in uppercase form; the other non-terminals are
 fragments used only for easier construction of the grammar. The special
-rule \<like_num\> denotes one token resembling a number. An ellipsis
+rule <like_num> denotes one token resembling a number. An ellipsis
 indicates a part of the rule that was shortened in the paper.
 
 Here is the list of all the rules:
 
-::: grammar
-\<unit_name\> ::= meter \| hour \| kilogram \| candela \| lux \| \...
+```ebnf
+<unit_name> ::= meter | hour | kilogram | candela | lux | ...
 
-\<modifier\> ::= cubic \| square
+<modifier> ::= cubic | square
 
-\<single_unit\> ::= \[\<modifier\>\] \<unit_name\>
+<single_unit> ::= [<modifier>] <unit_name>
 
-\<compound_unit\> ::= \<single_unit\> per \<single_unit\>
+<compound_unit> ::= <single_unit> per <single_unit>
 
-\<UNIT\> ::= \<single_unit\> \| \<compound_unit\>
+<UNIT> ::= <single_unit> | <compound_unit>
 
-\<QUANTITY\> ::= \<like_num\> \<UNIT\>
+<QUANTITY> ::= <like_num> <UNIT>
 
-\<COMPARISON_WORD\> ::= greater \| faster \| bigger \| larger \| slower
-\| less \| \...
+<COMPARISON_WORD> ::= greater | faster | bigger | larger | slower| less | ...
 
-\<single_term\> ::= density \| volume \| speed \| length \| moment \|
-force \| \...
+<single_term> ::= density | volume | speed | length | moment | force | ...
 
-\<compound_term\> ::= ampere force \| wave propagation \| \...
+<compound_term> ::= ampere force | wave propagation | ...
 
-\<simple_term\> ::= \<single_term\> \| \<compound_term\>
+<simple_term> ::= <single_term> | <compound_term>
 
-\<of_term\> ::= \<simple_term\> of \[\<determiner\>\] \<simple_term\>
+<of_term> ::= <simple_term> of [<determiner>] <simple_term>
 
-\<TERM\> ::= \<simple_term\> \| \<of_term\>
+<TERM> ::= <simple_term> | <of_term>
 
-\<UNKNOWN_QUESTION\> ::= what \| determine \| calculate
+<UNKNOWN_QUESTION> ::= what | determine | calculate
 
-\<special_unknown_word\> ::= far \| fast \| often
+<special_unknown_word> ::= far | fast | often
 
-\<UNKNOWN_HOW_QUESTION\> ::= how \<special_unknown_word\>
+<UNKNOWN_HOW_QUESTION> ::= how <special_unknown_word>
 
-\<neg_change_word\> ::= decrease \| reduce
+<neg_change_word> ::= decrease | reduce
 
-\<pos_change_word\> ::= increase
+<pos_change_word> ::= increase
 
-\<determiner\> ::= a \| an \| the
+<determiner> ::= a | an | the
 
-\<change_pattern\> ::= by \[\<determiner\> factor of\] \<like_num\>
+<change_pattern> ::= by [<determiner> factor of] <like_num>
 
-\<NEG_CHANGE\> ::= \<neg_change_word\> \<change_pattern\>
+<NEG_CHANGE> ::= <neg_change_word> <change_pattern>
 
-\<POS_CHANGE\> ::= \<pos_change_word\> \<change_pattern\>
+<POS_CHANGE> ::= <pos_change_word> <change_pattern>
 
-\<CHANGE_VERB\> ::= \<pos_change_word\> \| \<neg_change_word\> \| change
-:::
+<CHANGE_VERB> ::= <pos_change_word> | <neg_change_word> | change
+```
 
 We provide here an example of NER to understand this process better:
 
-![Example of named entity recognition for an unknown finding
-problem.](media/image3.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image3.png"/>
+</p>
+<p align="center">
+  Figure 2: Example of named entity recognition for an unknown finding problem.
+</p>
 
-![Example of named entity recognition for a value change
-problem.](media/image4.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image4.png"/>
+</p>
+<p align="center">
+  Figure 3: Example of named entity recognition for a value change problem.
+</p>
 
 ## Problem type recognition
 
@@ -469,7 +482,7 @@ allowing us to use Python's insecure "eval" function. The program will
 convert the unit entity into a valid Python expression and call the
 "eval" function. We replace the word "*per*" with the division symbol.
 To parse the modifiers "*square*" and "*cube*", we replace those words
-with "\*\*2" and "\*\*3", respectively, after the single unit.
+with "**2" and "**3", respectively, after the single unit.
 
 We have found two ways in which given values are encoded in the list of
 entities. It is either a pair of TERM and QUANTITY or a single QUANTITY.
@@ -488,7 +501,7 @@ English word, the program uses a hard-coded map data structure (e.g.,
 
 The conversion of compound units and units with modifiers is tricky.
 However, we noticed that compound units resemble a physical formula
-(e.g., "*meters per second*" corresponds to $v = \frac{S}{t}$, etc.).
+(e.g., "*meters per second*" corresponds to $v = frac{S}{t}$, etc.).
 So, the program will first convert all one-word units in the compound
 unit to the symbols. Then, if the expression is not a single unit, the
 program will search the list of formulas for a formula, the right-hand
@@ -502,7 +515,7 @@ Unknown values are encoded either as a pair of UNKNOWN_QUESTION and TERM
 or as a single UNKNOWN_HOW_QUESTION. For the first variant, it is
 sufficient to convert the TERM into a variable, and for the second
 variant, we use a hard-coded map data structure (e.g., "*how far*" is
-$S$, "*how fast*" is $\upsilon$, etc.).
+$S$, "*how fast*" is $upsilon$, etc.).
 
 Value changes are encoded as a pair of TERM and POS_CHANGE or TERM and
 NEG_CHANGE. To convert these pairs into a variable change, the program
@@ -592,7 +605,7 @@ We invented this problem-solving algorithm for this problem type:
     formula's variables.
 
 2.  Substitute each formula variable with the given variables as a
-    "factor \* variable".
+    "factor * variable".
 
 3.  Divide the derived formula with the original formula.
 
@@ -609,7 +622,7 @@ it resembles human thinking.
 The first time we made a prototype of the program, we noticed it was
 limited. Consider a problem: "*What is the optical power of a converging
 lens with a focal length of 40 centimeters?*". A special formula solves
-this problem ($D = \pm \frac{1}{F}$). However, the formula varies
+this problem ($D = pm frac{1}{F}$). However, the formula varies
 whether the lens is a converging lens or a diverging lens. Another
 situation when we find this peculiarity is when we need to calculate the
 surface of an object (squares, rectangles, triangles, etc.).
@@ -620,7 +633,7 @@ qualities. Examples of context words: "*lens*", "*converging*",
 "*diverging*", "*square*", "*cube*", "*rectangle*", etc. In each physics
 problem, there is an associated context.
 
-# RESULTS
+# Results
 
 ## Examples of program usage
 
@@ -630,8 +643,12 @@ comment on how the program solved them.
 Problem #1: "*The car is traveling at a speed of 108 kilometers per
 hour. Represent this speed in meters per second*".
 
-![The program results for problem
-#1.](media/image5.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image5.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 4: The program results for problem #1.
+</p>
 
 Problem #1 is a conversion problem. We haven't found many problems of
 this type. The program correctly recognized the given quantity and
@@ -641,11 +658,15 @@ conversion is a primitive operation in SymPy.
 Problem #2: "*Which speed is slower: 72 kilometers per hour or 24 meters
 per second?*".
 
-![The program results for problem
-#2.](media/image6.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image6.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 5: The program results for problem #2.
+</p>
 
 Problem #2 is a comparison problem. It is not trivial to compare
-$72\frac{km}{h}$ and $24\frac{m}{s}$. The program correctly recognized
+$72frac{km}{h}$ and $24frac{m}{s}$. The program correctly recognized
 two quantities and the type of the problem. According to our
 problem-solving strategy, the program converted the second value to the
 unit of the first value. Also, our program generates answers based on
@@ -657,8 +678,12 @@ Problem #3: "*To raise a marble column weighing 3.78 tons from the
 bottom of a lake, 95200 joules of work was done. Determine the depth of
 the lake*".
 
-![The program result for problem
-#3.](media/image7.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image7.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 7: The program results for problem #3.
+</p>
 
 Problem #3 is an unknown finding problem. We chose this problem because
 it is not so trivial to solve; it includes several formulas for the
@@ -675,8 +700,12 @@ Problem #4: "*How many times will the moment of a force change if the
 force is increased by a factor of 8 and the arm of the force is
 decreased by a factor of 4?*".
 
-![The program results for problem
-#4.](media/image8.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image8.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 7: The program results for problem #4.
+</p>
 
 Problem #4 is a value change problem. A parser is needed to convert the
 list of entities to the problem representation fully. The program
@@ -740,7 +769,7 @@ programmer may miss.
 
 Another interesting problem that our application has is that it cannot
 support tasks with named constants. The program cannot infer that the
-"*length of the equator*" is about $4 \cdot 10^{4}\, km$. Also consider
+"*length of the equator*" is about $4 cdot 10^{4}, km$. Also consider
 the problem: "*Find the volume of mercury weighing 2 kilograms*". The
 program needs to refer to the table of densities and update the problem
 representation. Our implementation does not do it.
@@ -807,7 +836,7 @@ the same symbol.
 
 We have used a special technique for treating a QUANTITY entity as a
 given value if there is no TERM entity. If the program encounters a "*2
-meters*"" entity, it will treat it as $S = 2\ m$. We have found that
+meters*"" entity, it will treat it as $S = 2 m$. We have found that
 this is another ambiguity in our implementation. This entity can be not
 only $S$, but also $l$, $h$, $d$, etc.
 
@@ -818,7 +847,7 @@ Joule divided by Newton is a meter. Not enough units are provided in the
 SymPy library. The library documentation is too short, and we have not
 found a simple way to resolve these issues.
 
-# CONCLUSIONS
+# Conclusions
 
 In this paper, we have studied the automatic solving of physics word
 problems. PWP solving is a challenging subfield of word problem solving
@@ -864,4 +893,4 @@ obvious that there are many other types of physics problems. Our program
 can be improved by choosing different NLP methods and by developing a
 more sophisticated problem representation.
 
-# REFERENCES
+# References
