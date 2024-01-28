@@ -29,7 +29,7 @@ understanding.
 With the publication of Large Language Models (LLMs), students are
 tempted to solve their school problems by using AIs such as ChatGPT,
 Bard, etc. However, recent studies show that LLMs cannot solve physics
-problems well [@frust_soc]. Indeed, LLMs are neural models that try to
+problems well [^@frust_soc]. Indeed, LLMs are neural models that try to
 predict the next word of the answer probabilistically. Thus, neither
 students nor engineers can trust the output of the model.
 
@@ -68,7 +68,7 @@ answer.
 ## STUDENT: Pioneer AI program
 
 The D. Bobrow's STUDENT program is one of the first AI programs to
-understand natural language, showing promising results [@student]. The
+understand natural language, showing promising results [^@student]. The
 program solves algebraic word problems stated in English. An example of
 the problem that STUDENT can handle:
 
@@ -105,7 +105,7 @@ equations from its internal knowledge of the world.
 The STUDENT program is nearly 60 years old. The field of AI programming
 has improved since that time. Peter Norvig presented an analysis and
 elegant implementation of STUDENT written in Common Lisp in functional
-programming style [@paip].
+programming style [^@paip].
 
 ## Math word problem solvers
 
@@ -115,7 +115,7 @@ language processing and problem representation that is studied in this
 field of word problem-solving.
 
 Here is the list and analysis of different problem representations for
-MWPs structured by Mandal et al. [@mwp_repr]:
+MWPs structured by Mandal et al. [^@mwp_repr]:
 
 -   Equation template representation. An equation template is a
     predetermined equation that is formed with arithmetic operations and
@@ -145,7 +145,7 @@ rule-based techniques and statistical and neural models. Often, solvers
 parse the English text into dependency trees. Common features extracted
 from the text are part of speech tag, the lemma of a word, quantities,
 units of quantities, comparative adverbs, dependencies between verbs and
-quantities, etc. [@mwp_nlp].
+quantities, etc. [^@mwp_nlp].
 
 ## Physics word problem solvers
 
@@ -154,7 +154,7 @@ programs date back to 1970-1980 and use their own knowledge
 representation and custom natural language processing methods.
 
 One of the first programs that could handle PWP is the NEWTON program by
-Kleer [@newton]. It is made to solve mechanical problems. NEWTON would
+Kleer [^@newton]. It is made to solve mechanical problems. NEWTON would
 analyze the programs text and convert it to several data structures. The
 first data structure depicts objects, and the second is a tree-like data
 structure (called "envisioning tree") that holds all possible states of
@@ -166,7 +166,7 @@ the known parameters of the object and the equations that connect those
 parameters.
 
 Gordon S. Novak Jr. has studied the topic of physics problems very
-thoroughly. One of the programs he developed is ISAAC [@isaac]. This
+thoroughly. One of the programs he developed is ISAAC [^@isaac]. This
 problem understands and solves physics problems that involve rigid
 bodies in static equilibrium. The program can also draw a diagram of the
 problem.
@@ -190,7 +190,7 @@ is one of the simplest parts of the program. We were unable to find the
 source code of the ISAAC program.
 
 Bundy et al. created the MECHO program, which addresses mechanical PWPs
-and is implemented in Prolog [@mecho]. The program processes the word
+and is implemented in Prolog [^@mecho]. The program processes the word
 problem in several stages. First, it parses the text, extracting
 information. Then, MECHO derives assertions related to objects, given
 parameters, and unknown values from the parsed data. These assertions
@@ -201,7 +201,7 @@ numerical solutions.
 
 Mukherjee et al. have an extensive overview of rule-based word problem
 solvers and a dedicated section for PWPs. Other programs for solving
-PWPs include BEATRIX, ALBERT, and FREEBODY [@other_pwp]. All those
+PWPs include BEATRIX, ALBERT, and FREEBODY [^@other_pwp]. All those
 programs address only specific types of physics problems. As the reader
 may notice, all the names of the programs resemble human names and are
 written in upper-case. Possibly, this tradition came after the STUDENT
@@ -209,7 +209,7 @@ program.
 
 We have found a modern paper on PWP solving. Leszczynski et al. address
 the problems of a free-falling object under constant acceleration of
-gravity [@modern_pwp]. The problem is analyzed using several recurrent
+gravity [^@modern_pwp]. The problem is analyzed using several recurrent
 neural networks (RNN), then the dynamical system is formed, and the
 solution is provided at the end. The first RNN is a word labeler used to
 extract the given values and the problem question. The second RNN is a
@@ -292,7 +292,7 @@ design). The library uses spaCy (natural language processing) and SymPy
 (symbolic math) libraries. We used PythonAnywhere to host our program
 (<https://inanyan.pythonanywhere.com/>).
 
-By definitions provided in AI:MA [@aima], we consider our program to be
+By definitions provided in AI:MA [^@aima], we consider our program to be
 inside the "Thinking Rationally" field because we are trying to find the
 computational model behind PWP solving and provide the user with a
 correct problem solution.
@@ -317,7 +317,7 @@ English text.
 ## Testing data
 
 To test our program, we created a small dataset with physics problems
-collected from various sources such as [@ukr_ph_1], [@ukr_ph_2], and the
+collected from various sources such as [^@ukr_ph_1], [^@ukr_ph_2], and the
 Internet. We translated the Ukrainian variants to English.
 
 # Description of the program
@@ -588,7 +588,7 @@ Also, we used the term "applicable formula". This means the formula
 belongs to the internal list of formulas or is derived.
 
 We have quickly noticed that this algorithm is a simplified version of
-the Stanford Research Institute Problem Solver algorithm [@strips]. So,
+the Stanford Research Institute Problem Solver algorithm [^@strips]. So,
 we modified it to the physical field. The goals are represented as math
 symbols. The operators are the applicable formulas. The preconditions of
 an operator (or a formula) are the free symbols of the formula. The
@@ -753,7 +753,7 @@ that the solution to the problem depends highly on the problem
 formulation. A possible reason is that we used a rule-based approach for
 NER. Rule-based techniques are usually used on the first iteration of
 NLP program development, and then they are replaced by more powerful
-statistical or neural models [@nlp].
+statistical or neural models [^@nlp].
 
 Pattern matching, used for NER, restricts the input text to a specific
 syntax. For example, we require that the units are written as proper
@@ -894,3 +894,70 @@ can be improved by choosing different NLP methods and by developing a
 more sophisticated problem representation.
 
 # References
+[^@nlp]: B., S. V., B. Majumder, A. Gupta, and H. Surana. 2020. *Practical
+Natural Language Processing: A Comprehensive Guide to Building
+Real-World NLP Systems*. O’Reilly Media.
+
+[^@student]: Bobrow, D. 1964. “Natural Language Input for a Computer Problem Solving
+System.” In *Semantic Information Processing*, 146–226. Cambridge, MA:
+USA:MIT Press.
+
+[^@mecho]: Bundy, A., L. Byrd, G. Luger, C. Mellish, R. Milne, and M. Palmer. 1979.
+“MECHO: A Program to Solve Mechanics Problems.” *Department of
+Artificial Intelligence, University of Edinburgh*.
+https://doi.org/<http://www.worldcat.org/title/mecho-a-program-to-solve-mechanics-problems/oclc/475999217.>
+
+[^@strips]: Fikes, R. E., and N. J. Nilsson. 1971. “Strips: A New Approach to the
+Application of Theorem Proving to Problem Solving.” *Artificial
+Intelligence* 2 (3): 189–208.
+<https://doi.org/10.1016/0004-3702(71)90010-5>.
+
+[^@frust_soc]: Gregorcic, B., and A.-M. Pendrill. 2023. “ChatGPT and the Frustrated
+Socrates.” *Physics Education* 58 (3): 035021.
+<https://doi.org/10.1088/1361-6552/acc299>.
+
+[^@mecho]: Kleer, J. 1977. “Multiples Representations of Knowledge in a Mechanics
+Problem-Solver.” In *Proceedings of the 5th International Joint
+Conference on Artificial Intelligence*, 1:299–304. USA. San Francisco,
+CA, USA: Morgan Kaufmann Publishers Inc.
+<https://doi.org/10.1016/B978-1-4832-1447-4.50009-2>.
+
+[^@modern_pwp]: Leszczynski, Megan, and José E. Moreira. 2017. “Machine Solver for
+Physics Word Problems.” In.
+<https://api.semanticscholar.org/CorpusID:58605280>.
+
+[^@mwp_repr]: Mandal, S., and S. K. Naskar. 2019. “Solving Arithmetic Mathematical
+Word Problems: A Review and Recent Advancements.” Edited by P. Chandra,
+D. Giri, F. Li, S. Kar, and D. K. Jana. *Information Technology and
+Applied Mathematics*, 95–114.
+<https://doi.org/10.1007/978-981-10-7590-2_7>.
+
+[^@other_pwp]: Mukherjee, A., and U. Garain. 2008. “A Review of Methods for Automatic
+Understanding of Natural Language Mathematical Problems.” *Artificial
+Intelligence Review* 29 (2): 93–122.
+<https://doi.org/10.1007/s10462-009-9110-0>.
+
+[^@paip]: Norvig. 1991. *Paradigms of Artificial Intelligence Programming: Case
+Studies in Common Lisp*. 1st ed. Morgan Kaufmann.
+<https://unglueit-files.s3.amazonaws.com/ebf/59f74a93bbc1435c9ca1557b4bb6e9ba.pdf>.
+
+[^@isaac]: Novak, G. S., Jr. 1976. “Computer Understanding of Physics Problems
+Stated in Natural Language.” *American Journal of Computational
+Linguistics*. <https://aclanthology.org/J76-3005.>
+
+[^@spacy_rules]: “Rule-Based Matching Spacy Usage Documentation.” n.d.
+<https://spacy.io/usage/rule-based-matching>.
+
+[^@aima]: Russell, S., and P. Norvig. 2009. *Artificial Intelligence: A Modern
+Approach*. 3rd ed. USA: Prentice Hall Press.
+<https://people.engr.tamu.edu/guni/csce421/files/AI_Russell_Norvig.pdf>.
+
+[^@mwp_nlp]: Zhang, Dongxiang, Lei Wang, Luming Zhang, Bing Tian Dai, and Heng Tao
+Shen. 2020. “The Gap of Semantic Parsing: A Survey on Automatic Math
+Word Problem Solvers.” *IEEE Transactions on Pattern Analysis and
+Machine Intelligence* 42 (9): 2287–2305.
+<https://doi.org/10.1109/TPAMI.2019.2914054>.
+
+[^@ukr_ph_1]: Гельфгат, І. 2009. *Фізика. 7 Клас: Збірник Задач*. 4th ed. Веста.
+
+[^@ukr_ph_2]: Ненашев, І. 2011. *Фізика. 8 Клас: Збірник Задач*. 5th ed. Веста.
