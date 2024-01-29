@@ -1,32 +1,35 @@
----
-abstract: |
-  We present a system that solves simple physics word problems (PWPs)
-  stated in the English language. PWP is an interesting subfield of word
-  problems that is not studied as deeply as math word problems (MWPs).
-  We described the process of analyzing English text, the representation
-  of problems, and algorithms for finding the solution. We have
-  researched the types of PWPs and described their problem-solving
-  strategies. We have noted the peculiarities that PWPs introduce in
-  comparison to MWPs. We discussed the capabilities and limitations of
-  our implementation and proposed future research areas.
-author:
-- |
-  Ruslan Popov, Nadiia Karpenko\
-  Oles Honchar Dnipro National University (Ukraine)
-bibliography: lit.bib
-title: Automatic solving of physics word problems
----
+# Title
+Automatic solving of physics word problems
 
-***Keywords---*** physics word problems, automatic problem solving,
+# Authors
+- Ruslan Popov
+- Nadiia Karpenko
+
+# University
+Faculty of Physics, Electronics and Computer Systems, Oles Honchar Dnipro National University, Haharina Ave, 72, Dnipro
+
+# Abstract
+We present a system that solves simple physics word problems (PWPs)
+stated in the English language. PWP is an interesting subfield of word
+problems that is not studied as deeply as math word problems (MWPs).
+We described the process of analyzing English text, the representation
+of problems, and algorithms for finding the solution. We have
+researched the types of PWPs and described their problem-solving
+strategies. We have noted the peculiarities that PWPs introduce in
+comparison to MWPs. We discussed the capabilities and limitations of
+our implementation and proposed future research areas.
+
+# Keywords 
+physics word problems, automatic problem solving,
 artificial intelligence, natural language processing, natural language
-understanding..
+understanding.
 
-# INTRODUCTION
+# Introduction
 
 With the publication of Large Language Models (LLMs), students are
 tempted to solve their school problems by using AIs such as ChatGPT,
 Bard, etc. However, recent studies show that LLMs cannot solve physics
-problems well [@frust_soc]. Indeed, LLMs are neural models that try to
+problems well [^@frust_soc]. Indeed, LLMs are neural models that try to
 predict the next word of the answer probabilistically. Thus, neither
 students nor engineers can trust the output of the model.
 
@@ -60,18 +63,18 @@ problems in a correct and deterministic way, where programs utilize the
 field knowledge, rules, and definitions to give a strict and accurate
 answer.
 
-# LITERATURE ANALYSIS
+# Literature analysis
 
 ## STUDENT: Pioneer AI program
 
 The D. Bobrow's STUDENT program is one of the first AI programs to
-understand natural language, showing promising results [@student]. The
+understand natural language, showing promising results [^@student]. The
 program solves algebraic word problems stated in English. An example of
 the problem that STUDENT can handle:
 
-"*If the number of customers Tom gets is twice the square of 20% of the
-number of advertisements he runs, and the number of advertisements is
-45, then what is the number of customers Tom gets?*""
+> If the number of customers Tom gets is twice the square of 20% of the
+> number of advertisements he runs, and the number of advertisements is
+> 45, then what is the number of customers Tom gets?
 
 The STUDENT approach is straightforward: the problem is represented as a
 set of simultaneous equations; the solution of the problem is the
@@ -79,13 +82,13 @@ solution for that set. The program used pattern matching and kernel
 sentence theory to transform English text into a set of equations. For
 the example above, STUDENT would generate this system:
 
-$$\begin{cases}
+$$
+\begin{cases}
         (CUSTOMERS) = 2 * (0.2 + (ADVERTISMENTS)) ^ 2 \\
-        
         (ADVERTISMENTS) = 45 \\
-        
         ? = (CUSTOMERS)
-    \end{cases}$$
+\end{cases}
+$$
 
 Words in the problem text resemble mathematical operations and
 variables, so the STUDENT can translate the English text into
@@ -102,7 +105,7 @@ equations from its internal knowledge of the world.
 The STUDENT program is nearly 60 years old. The field of AI programming
 has improved since that time. Peter Norvig presented an analysis and
 elegant implementation of STUDENT written in Common Lisp in functional
-programming style [@paip].
+programming style [^@paip].
 
 ## Math word problem solvers
 
@@ -112,7 +115,7 @@ language processing and problem representation that is studied in this
 field of word problem-solving.
 
 Here is the list and analysis of different problem representations for
-MWPs structured by Mandal et al. [@mwp_repr]:
+MWPs structured by Mandal et al. [^@mwp_repr]:
 
 -   Equation template representation. An equation template is a
     predetermined equation that is formed with arithmetic operations and
@@ -142,7 +145,7 @@ rule-based techniques and statistical and neural models. Often, solvers
 parse the English text into dependency trees. Common features extracted
 from the text are part of speech tag, the lemma of a word, quantities,
 units of quantities, comparative adverbs, dependencies between verbs and
-quantities, etc. [@mwp_nlp].
+quantities, etc. [^@mwp_nlp].
 
 ## Physics word problem solvers
 
@@ -151,7 +154,7 @@ programs date back to 1970-1980 and use their own knowledge
 representation and custom natural language processing methods.
 
 One of the first programs that could handle PWP is the NEWTON program by
-Kleer [@newton]. It is made to solve mechanical problems. NEWTON would
+Kleer [^@newton]. It is made to solve mechanical problems. NEWTON would
 analyze the programs text and convert it to several data structures. The
 first data structure depicts objects, and the second is a tree-like data
 structure (called "envisioning tree") that holds all possible states of
@@ -163,7 +166,7 @@ the known parameters of the object and the equations that connect those
 parameters.
 
 Gordon S. Novak Jr. has studied the topic of physics problems very
-thoroughly. One of the programs he developed is ISAAC [@isaac]. This
+thoroughly. One of the programs he developed is ISAAC [^@isaac]. This
 problem understands and solves physics problems that involve rigid
 bodies in static equilibrium. The program can also draw a diagram of the
 problem.
@@ -187,7 +190,7 @@ is one of the simplest parts of the program. We were unable to find the
 source code of the ISAAC program.
 
 Bundy et al. created the MECHO program, which addresses mechanical PWPs
-and is implemented in Prolog [@mecho]. The program processes the word
+and is implemented in Prolog [^@mecho]. The program processes the word
 problem in several stages. First, it parses the text, extracting
 information. Then, MECHO derives assertions related to objects, given
 parameters, and unknown values from the parsed data. These assertions
@@ -198,7 +201,7 @@ numerical solutions.
 
 Mukherjee et al. have an extensive overview of rule-based word problem
 solvers and a dedicated section for PWPs. Other programs for solving
-PWPs include BEATRIX, ALBERT, and FREEBODY [@other_pwp]. All those
+PWPs include BEATRIX, ALBERT, and FREEBODY [^@other_pwp]. All those
 programs address only specific types of physics problems. As the reader
 may notice, all the names of the programs resemble human names and are
 written in upper-case. Possibly, this tradition came after the STUDENT
@@ -206,7 +209,7 @@ program.
 
 We have found a modern paper on PWP solving. Leszczynski et al. address
 the problems of a free-falling object under constant acceleration of
-gravity [@modern_pwp]. The problem is analyzed using several recurrent
+gravity [^@modern_pwp]. The problem is analyzed using several recurrent
 neural networks (RNN), then the dynamical system is formed, and the
 solution is provided at the end. The first RNN is a word labeler used to
 extract the given values and the problem question. The second RNN is a
@@ -227,13 +230,13 @@ kilometers and the time the automobile has traveled is 6 hours, then
 what is the speed of the automobile?*". The STUDENT would generate this
 set of equations:
 
-$$\begin{cases}
-        (DISTANCE) = 477\ kilometers \\
-        
-        (TIME) = 6\ hours \\
-        
+$$
+\begin{cases}
+        (DISTANCE) = 477 kilometers \\
+        (TIME) = 6 hours \\
         ? = (SPEED)
-    \end{cases}$$
+\end{cases}
+$$
 
 As the reader may notice, the STUDENT has generated a system consisting
 of given values and unknowns. This set would resemble the column
@@ -266,7 +269,7 @@ unstandardized programming languages with undefined styles of
 programming. The analysis of the capabilities and limitations of
 previous works is not enough.
 
-# OBJECT, SUBJECT, AND METHODS OF RESEARCH
+# Object, subject, and methods of research
 
 ## Object and subject
 
@@ -289,7 +292,7 @@ design). The library uses spaCy (natural language processing) and SymPy
 (symbolic math) libraries. We used PythonAnywhere to host our program
 (<https://inanyan.pythonanywhere.com/>).
 
-By definitions provided in AI:MA [@aima], we consider our program to be
+By definitions provided in AI:MA [^@aima], we consider our program to be
 inside the "Thinking Rationally" field because we are trying to find the
 computational model behind PWP solving and provide the user with a
 correct problem solution.
@@ -297,8 +300,12 @@ correct problem solution.
 The whole NLP pipeline, algorithms, and data structures that are used by
 our program can be depicted through this diagram:
 
-![Algorithms and data structures of our
-program.](media/image2.png){width="75%"}
+<p align="center">
+  <img src="media/image2.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 1: Algorithms and data structures of our program.
+</p>
 
 In fig. 1 nodes represent algorithms, right after the node comes a brief
 comment on the chosen approach, and the labels of the arrows are data
@@ -310,10 +317,10 @@ English text.
 ## Testing data
 
 To test our program, we created a small dataset with physics problems
-collected from various sources such as [@ukr_ph_1], [@ukr_ph_2], and the
+collected from various sources such as [^@ukr_ph_1], [^@ukr_ph_2], and the
 Internet. We translated the Ukrainian variants to English.
 
-# DESCRIPTION OF THE PROGRAM
+# Description of the program
 
 ## Problem types
 
@@ -365,69 +372,75 @@ present the patterns we used for NER with our modified BNF notation
 because there is no standardized way to do this. In this notation, no
 recursion is allowed. Terminals are written as is and may resemble
 either the lowercase form of a token or its lemma. Non-terminals are
-written inside '\<' and '\>'. Entities are written as non-terminals
+written inside '<' and '>'. Entities are written as non-terminals
 whose names are written in uppercase form; the other non-terminals are
 fragments used only for easier construction of the grammar. The special
-rule \<like_num\> denotes one token resembling a number. An ellipsis
+rule <like_num> denotes one token resembling a number. An ellipsis
 indicates a part of the rule that was shortened in the paper.
 
 Here is the list of all the rules:
 
-::: grammar
-\<unit_name\> ::= meter \| hour \| kilogram \| candela \| lux \| \...
+```ebnf
+<unit_name> ::= meter | hour | kilogram | candela | lux | ...
 
-\<modifier\> ::= cubic \| square
+<modifier> ::= cubic | square
 
-\<single_unit\> ::= \[\<modifier\>\] \<unit_name\>
+<single_unit> ::= [<modifier>] <unit_name>
 
-\<compound_unit\> ::= \<single_unit\> per \<single_unit\>
+<compound_unit> ::= <single_unit> per <single_unit>
 
-\<UNIT\> ::= \<single_unit\> \| \<compound_unit\>
+<UNIT> ::= <single_unit> | <compound_unit>
 
-\<QUANTITY\> ::= \<like_num\> \<UNIT\>
+<QUANTITY> ::= <like_num> <UNIT>
 
-\<COMPARISON_WORD\> ::= greater \| faster \| bigger \| larger \| slower
-\| less \| \...
+<COMPARISON_WORD> ::= greater | faster | bigger | larger | slower| less | ...
 
-\<single_term\> ::= density \| volume \| speed \| length \| moment \|
-force \| \...
+<single_term> ::= density | volume | speed | length | moment | force | ...
 
-\<compound_term\> ::= ampere force \| wave propagation \| \...
+<compound_term> ::= ampere force | wave propagation | ...
 
-\<simple_term\> ::= \<single_term\> \| \<compound_term\>
+<simple_term> ::= <single_term> | <compound_term>
 
-\<of_term\> ::= \<simple_term\> of \[\<determiner\>\] \<simple_term\>
+<of_term> ::= <simple_term> of [<determiner>] <simple_term>
 
-\<TERM\> ::= \<simple_term\> \| \<of_term\>
+<TERM> ::= <simple_term> | <of_term>
 
-\<UNKNOWN_QUESTION\> ::= what \| determine \| calculate
+<UNKNOWN_QUESTION> ::= what | determine | calculate
 
-\<special_unknown_word\> ::= far \| fast \| often
+<special_unknown_word> ::= far | fast | often
 
-\<UNKNOWN_HOW_QUESTION\> ::= how \<special_unknown_word\>
+<UNKNOWN_HOW_QUESTION> ::= how <special_unknown_word>
 
-\<neg_change_word\> ::= decrease \| reduce
+<neg_change_word> ::= decrease | reduce
 
-\<pos_change_word\> ::= increase
+<pos_change_word> ::= increase
 
-\<determiner\> ::= a \| an \| the
+<determiner> ::= a | an | the
 
-\<change_pattern\> ::= by \[\<determiner\> factor of\] \<like_num\>
+<change_pattern> ::= by [<determiner> factor of] <like_num>
 
-\<NEG_CHANGE\> ::= \<neg_change_word\> \<change_pattern\>
+<NEG_CHANGE> ::= <neg_change_word> <change_pattern>
 
-\<POS_CHANGE\> ::= \<pos_change_word\> \<change_pattern\>
+<POS_CHANGE> ::= <pos_change_word> <change_pattern>
 
-\<CHANGE_VERB\> ::= \<pos_change_word\> \| \<neg_change_word\> \| change
-:::
+<CHANGE_VERB> ::= <pos_change_word> | <neg_change_word> | change
+```
 
 We provide here an example of NER to understand this process better:
 
-![Example of named entity recognition for an unknown finding
-problem.](media/image3.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image3.png"/>
+</p>
+<p align="center">
+  Figure 2: Example of named entity recognition for an unknown finding problem.
+</p>
 
-![Example of named entity recognition for a value change
-problem.](media/image4.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image4.png"/>
+</p>
+<p align="center">
+  Figure 3: Example of named entity recognition for a value change problem.
+</p>
 
 ## Problem type recognition
 
@@ -469,7 +482,7 @@ allowing us to use Python's insecure "eval" function. The program will
 convert the unit entity into a valid Python expression and call the
 "eval" function. We replace the word "*per*" with the division symbol.
 To parse the modifiers "*square*" and "*cube*", we replace those words
-with "\*\*2" and "\*\*3", respectively, after the single unit.
+with "**2" and "**3", respectively, after the single unit.
 
 We have found two ways in which given values are encoded in the list of
 entities. It is either a pair of TERM and QUANTITY or a single QUANTITY.
@@ -488,7 +501,7 @@ English word, the program uses a hard-coded map data structure (e.g.,
 
 The conversion of compound units and units with modifiers is tricky.
 However, we noticed that compound units resemble a physical formula
-(e.g., "*meters per second*" corresponds to $v = \frac{S}{t}$, etc.).
+(e.g., "*meters per second*" corresponds to $v = frac{S}{t}$, etc.).
 So, the program will first convert all one-word units in the compound
 unit to the symbols. Then, if the expression is not a single unit, the
 program will search the list of formulas for a formula, the right-hand
@@ -502,7 +515,7 @@ Unknown values are encoded either as a pair of UNKNOWN_QUESTION and TERM
 or as a single UNKNOWN_HOW_QUESTION. For the first variant, it is
 sufficient to convert the TERM into a variable, and for the second
 variant, we use a hard-coded map data structure (e.g., "*how far*" is
-$S$, "*how fast*" is $\upsilon$, etc.).
+$S$, "*how fast*" is $upsilon$, etc.).
 
 Value changes are encoded as a pair of TERM and POS_CHANGE or TERM and
 NEG_CHANGE. To convert these pairs into a variable change, the program
@@ -575,7 +588,7 @@ Also, we used the term "applicable formula". This means the formula
 belongs to the internal list of formulas or is derived.
 
 We have quickly noticed that this algorithm is a simplified version of
-the Stanford Research Institute Problem Solver algorithm [@strips]. So,
+the Stanford Research Institute Problem Solver algorithm [^@strips]. So,
 we modified it to the physical field. The goals are represented as math
 symbols. The operators are the applicable formulas. The preconditions of
 an operator (or a formula) are the free symbols of the formula. The
@@ -592,7 +605,7 @@ We invented this problem-solving algorithm for this problem type:
     formula's variables.
 
 2.  Substitute each formula variable with the given variables as a
-    "factor \* variable".
+    "factor * variable".
 
 3.  Divide the derived formula with the original formula.
 
@@ -609,7 +622,7 @@ it resembles human thinking.
 The first time we made a prototype of the program, we noticed it was
 limited. Consider a problem: "*What is the optical power of a converging
 lens with a focal length of 40 centimeters?*". A special formula solves
-this problem ($D = \pm \frac{1}{F}$). However, the formula varies
+this problem ($D = pm frac{1}{F}$). However, the formula varies
 whether the lens is a converging lens or a diverging lens. Another
 situation when we find this peculiarity is when we need to calculate the
 surface of an object (squares, rectangles, triangles, etc.).
@@ -620,7 +633,7 @@ qualities. Examples of context words: "*lens*", "*converging*",
 "*diverging*", "*square*", "*cube*", "*rectangle*", etc. In each physics
 problem, there is an associated context.
 
-# RESULTS
+# Results
 
 ## Examples of program usage
 
@@ -630,8 +643,12 @@ comment on how the program solved them.
 Problem #1: "*The car is traveling at a speed of 108 kilometers per
 hour. Represent this speed in meters per second*".
 
-![The program results for problem
-#1.](media/image5.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image5.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 4: The program results for problem #1.
+</p>
 
 Problem #1 is a conversion problem. We haven't found many problems of
 this type. The program correctly recognized the given quantity and
@@ -641,11 +658,15 @@ conversion is a primitive operation in SymPy.
 Problem #2: "*Which speed is slower: 72 kilometers per hour or 24 meters
 per second?*".
 
-![The program results for problem
-#2.](media/image6.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image6.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 5: The program results for problem #2.
+</p>
 
 Problem #2 is a comparison problem. It is not trivial to compare
-$72\frac{km}{h}$ and $24\frac{m}{s}$. The program correctly recognized
+$72frac{km}{h}$ and $24frac{m}{s}$. The program correctly recognized
 two quantities and the type of the problem. According to our
 problem-solving strategy, the program converted the second value to the
 unit of the first value. Also, our program generates answers based on
@@ -657,8 +678,12 @@ Problem #3: "*To raise a marble column weighing 3.78 tons from the
 bottom of a lake, 95200 joules of work was done. Determine the depth of
 the lake*".
 
-![The program result for problem
-#3.](media/image7.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image7.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 7: The program results for problem #3.
+</p>
 
 Problem #3 is an unknown finding problem. We chose this problem because
 it is not so trivial to solve; it includes several formulas for the
@@ -675,8 +700,12 @@ Problem #4: "*How many times will the moment of a force change if the
 force is increased by a factor of 8 and the arm of the force is
 decreased by a factor of 4?*".
 
-![The program results for problem
-#4.](media/image8.png){width="\\textwidth"}
+<p align="center">
+  <img src="media/image8.png" width="75%"/>
+</p>
+<p align="center">
+  Figure 7: The program results for problem #4.
+</p>
 
 Problem #4 is a value change problem. A parser is needed to convert the
 list of entities to the problem representation fully. The program
@@ -724,7 +753,7 @@ that the solution to the problem depends highly on the problem
 formulation. A possible reason is that we used a rule-based approach for
 NER. Rule-based techniques are usually used on the first iteration of
 NLP program development, and then they are replaced by more powerful
-statistical or neural models [@nlp].
+statistical or neural models [^@nlp].
 
 Pattern matching, used for NER, restricts the input text to a specific
 syntax. For example, we require that the units are written as proper
@@ -740,7 +769,7 @@ programmer may miss.
 
 Another interesting problem that our application has is that it cannot
 support tasks with named constants. The program cannot infer that the
-"*length of the equator*" is about $4 \cdot 10^{4}\, km$. Also consider
+"*length of the equator*" is about $4 cdot 10^{4}, km$. Also consider
 the problem: "*Find the volume of mercury weighing 2 kilograms*". The
 program needs to refer to the table of densities and update the problem
 representation. Our implementation does not do it.
@@ -807,7 +836,7 @@ the same symbol.
 
 We have used a special technique for treating a QUANTITY entity as a
 given value if there is no TERM entity. If the program encounters a "*2
-meters*"" entity, it will treat it as $S = 2\ m$. We have found that
+meters*"" entity, it will treat it as $S = 2 m$. We have found that
 this is another ambiguity in our implementation. This entity can be not
 only $S$, but also $l$, $h$, $d$, etc.
 
@@ -818,7 +847,7 @@ Joule divided by Newton is a meter. Not enough units are provided in the
 SymPy library. The library documentation is too short, and we have not
 found a simple way to resolve these issues.
 
-# CONCLUSIONS
+# Conclusions
 
 In this paper, we have studied the automatic solving of physics word
 problems. PWP solving is a challenging subfield of word problem solving
@@ -864,4 +893,71 @@ obvious that there are many other types of physics problems. Our program
 can be improved by choosing different NLP methods and by developing a
 more sophisticated problem representation.
 
-# REFERENCES
+# References
+[^@nlp]: B., S. V., B. Majumder, A. Gupta, and H. Surana. 2020. *Practical
+Natural Language Processing: A Comprehensive Guide to Building
+Real-World NLP Systems*. O’Reilly Media.
+
+[^@student]: Bobrow, D. 1964. “Natural Language Input for a Computer Problem Solving
+System.” In *Semantic Information Processing*, 146–226. Cambridge, MA:
+USA:MIT Press.
+
+[^@mecho]: Bundy, A., L. Byrd, G. Luger, C. Mellish, R. Milne, and M. Palmer. 1979.
+“MECHO: A Program to Solve Mechanics Problems.” *Department of
+Artificial Intelligence, University of Edinburgh*.
+https://doi.org/<http://www.worldcat.org/title/mecho-a-program-to-solve-mechanics-problems/oclc/475999217.>
+
+[^@strips]: Fikes, R. E., and N. J. Nilsson. 1971. “Strips: A New Approach to the
+Application of Theorem Proving to Problem Solving.” *Artificial
+Intelligence* 2 (3): 189–208.
+<https://doi.org/10.1016/0004-3702(71)90010-5>.
+
+[^@frust_soc]: Gregorcic, B., and A.-M. Pendrill. 2023. “ChatGPT and the Frustrated
+Socrates.” *Physics Education* 58 (3): 035021.
+<https://doi.org/10.1088/1361-6552/acc299>.
+
+[^@mecho]: Kleer, J. 1977. “Multiples Representations of Knowledge in a Mechanics
+Problem-Solver.” In *Proceedings of the 5th International Joint
+Conference on Artificial Intelligence*, 1:299–304. USA. San Francisco,
+CA, USA: Morgan Kaufmann Publishers Inc.
+<https://doi.org/10.1016/B978-1-4832-1447-4.50009-2>.
+
+[^@modern_pwp]: Leszczynski, Megan, and José E. Moreira. 2017. “Machine Solver for
+Physics Word Problems.” In.
+<https://api.semanticscholar.org/CorpusID:58605280>.
+
+[^@mwp_repr]: Mandal, S., and S. K. Naskar. 2019. “Solving Arithmetic Mathematical
+Word Problems: A Review and Recent Advancements.” Edited by P. Chandra,
+D. Giri, F. Li, S. Kar, and D. K. Jana. *Information Technology and
+Applied Mathematics*, 95–114.
+<https://doi.org/10.1007/978-981-10-7590-2_7>.
+
+[^@other_pwp]: Mukherjee, A., and U. Garain. 2008. “A Review of Methods for Automatic
+Understanding of Natural Language Mathematical Problems.” *Artificial
+Intelligence Review* 29 (2): 93–122.
+<https://doi.org/10.1007/s10462-009-9110-0>.
+
+[^@paip]: Norvig. 1991. *Paradigms of Artificial Intelligence Programming: Case
+Studies in Common Lisp*. 1st ed. Morgan Kaufmann.
+<https://unglueit-files.s3.amazonaws.com/ebf/59f74a93bbc1435c9ca1557b4bb6e9ba.pdf>.
+
+[^@isaac]: Novak, G. S., Jr. 1976. “Computer Understanding of Physics Problems
+Stated in Natural Language.” *American Journal of Computational
+Linguistics*. <https://aclanthology.org/J76-3005.>
+
+[^@spacy_rules]: “Rule-Based Matching Spacy Usage Documentation.” n.d.
+<https://spacy.io/usage/rule-based-matching>.
+
+[^@aima]: Russell, S., and P. Norvig. 2009. *Artificial Intelligence: A Modern
+Approach*. 3rd ed. USA: Prentice Hall Press.
+<https://people.engr.tamu.edu/guni/csce421/files/AI_Russell_Norvig.pdf>.
+
+[^@mwp_nlp]: Zhang, Dongxiang, Lei Wang, Luming Zhang, Bing Tian Dai, and Heng Tao
+Shen. 2020. “The Gap of Semantic Parsing: A Survey on Automatic Math
+Word Problem Solvers.” *IEEE Transactions on Pattern Analysis and
+Machine Intelligence* 42 (9): 2287–2305.
+<https://doi.org/10.1109/TPAMI.2019.2914054>.
+
+[^@ukr_ph_1]: Гельфгат, І. 2009. *Фізика. 7 Клас: Збірник Задач*. 4th ed. Веста.
+
+[^@ukr_ph_2]: Ненашев, І. 2011. *Фізика. 8 Клас: Збірник Задач*. 5th ed. Веста.
