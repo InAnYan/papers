@@ -1,0 +1,528 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>JabRef references</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<script type="text/javascript">
+<!--
+// QuickSearch script for JabRef HTML export 
+// Version: 3.0
+//
+// Copyright (c) 2006-2011, Mark Schenk
+//
+// This software is distributed under a Creative Commons Attribution 3.0 License
+// http://creativecommons.org/licenses/by/3.0/
+//
+// Features:
+// - intuitive find-as-you-type searching
+//    ~ case insensitive
+//    ~ ignore diacritics (optional)
+//
+// - search with/without Regular Expressions
+// - match BibTeX key
+//
+
+// Search settings
+var searchAbstract = true;	// search in abstract
+var searchComment = true;	// search in comment
+
+var noSquiggles = true; 	// ignore diacritics when searching
+var searchRegExp = false; 	// enable RegExp searches
+
+
+if (window.addEventListener) {
+	window.addEventListener("load",initSearch,false); }
+else if (window.attachEvent) {
+	window.attachEvent("onload", initSearch); }
+
+function initSearch() {
+	// check for quick search table and searchfield
+	if (!document.getElementById('qs_table')||!document.getElementById('quicksearch')) { return; }
+
+	// load all the rows and sort into arrays
+	loadTableData();
+	
+	//find the query field
+	qsfield = document.getElementById('qs_field');
+
+	// previous search term; used for speed optimisation
+	prevSearch = '';
+
+	//find statistics location
+	stats = document.getElementById('stat');
+	setStatistics(-1);
+	
+	// set up preferences
+	initPreferences();
+
+	// shows the searchfield
+	document.getElementById('quicksearch').style.display = 'block';
+	document.getElementById('qs_field').onkeyup = quickSearch;
+}
+
+function loadTableData() {
+	// find table and appropriate rows
+	searchTable = document.getElementById('qs_table');
+	var allRows = searchTable.getElementsByTagName('tbody')[0].getElementsByTagName('tr');
+
+	// split all rows into entryRows and infoRows (e.g. abstract, comment, bibtex)
+	entryRows = new Array(); infoRows = new Array(); absRows = new Array(); revRows = new Array();
+
+	// get data from each row
+	entryRowsData = new Array(); absRowsData = new Array(); revRowsData = new Array(); 
+	
+	BibTeXKeys = new Array();
+	
+	for (var i=0, k=0, j=0; i<allRows.length;i++) {
+		if (allRows[i].className.match(/entry/)) {
+			entryRows[j] = allRows[i];
+			entryRowsData[j] = stripDiacritics(getTextContent(allRows[i]));
+			allRows[i].id ? BibTeXKeys[j] = allRows[i].id : allRows[i].id = 'autokey_'+j;
+			j ++;
+		} else {
+			infoRows[k++] = allRows[i];
+			// check for abstract/comment
+			if (allRows[i].className.match(/abstract/)) {
+				absRows.push(allRows[i]);
+				absRowsData[j-1] = stripDiacritics(getTextContent(allRows[i]));
+			} else if (allRows[i].className.match(/comment/)) {
+				revRows.push(allRows[i]);
+				revRowsData[j-1] = stripDiacritics(getTextContent(allRows[i]));
+			}
+		}
+	}
+	//number of entries and rows
+	numEntries = entryRows.length;
+	numInfo = infoRows.length;
+	numAbs = absRows.length;
+	numRev = revRows.length;
+}
+
+function quickSearch(){
+	
+	tInput = qsfield;
+
+	if (tInput.value.length == 0) {
+		showAll();
+		setStatistics(-1);
+		qsfield.className = '';
+		return;
+	} else {
+		t = stripDiacritics(tInput.value);
+
+		if(!searchRegExp) { t = escapeRegExp(t); }
+			
+		// only search for valid RegExp
+		try {
+			textRegExp = new RegExp(t,"i");
+			closeAllInfo();
+			qsfield.className = '';
+		}
+			catch(err) {
+			prevSearch = tInput.value;
+			qsfield.className = 'invalidsearch';
+			return;
+		}
+	}
+	
+	// count number of hits
+	var hits = 0;
+
+	// start looping through all entry rows
+	for (var i = 0; cRow = entryRows[i]; i++){
+
+		// only show search the cells if it isn't already hidden OR if the search term is getting shorter, then search all
+		if(cRow.className.indexOf('noshow')==-1 || tInput.value.length <= prevSearch.length){
+			var found = false; 
+
+			if (entryRowsData[i].search(textRegExp) != -1 || BibTeXKeys[i].search(textRegExp) != -1){ 
+				found = true;
+			} else {
+				if(searchAbstract && absRowsData[i]!=undefined) {
+					if (absRowsData[i].search(textRegExp) != -1){ found=true; } 
+				}
+				if(searchComment && revRowsData[i]!=undefined) {
+					if (revRowsData[i].search(textRegExp) != -1){ found=true; } 
+				}
+			}
+			
+			if (found){
+				cRow.className = 'entry show';
+				hits++;
+			} else {
+				cRow.className = 'entry noshow';
+			}
+		}
+	}
+
+	// update statistics
+	setStatistics(hits)
+	
+	// set previous search value
+	prevSearch = tInput.value;
+}
+
+
+// Strip Diacritics from text
+// http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
+
+// String containing replacement characters for stripping accents 
+var stripstring = 
+    'AAAAAAACEEEEIIII'+
+    'DNOOOOO.OUUUUY..'+
+    'aaaaaaaceeeeiiii'+
+    'dnooooo.ouuuuy.y'+
+    'AaAaAaCcCcCcCcDd'+
+    'DdEeEeEeEeEeGgGg'+
+    'GgGgHhHhIiIiIiIi'+
+    'IiIiJjKkkLlLlLlL'+
+    'lJlNnNnNnnNnOoOo'+
+    'OoOoRrRrRrSsSsSs'+
+    'SsTtTtTtUuUuUuUu'+
+    'UuUuWwYyYZzZzZz.';
+
+function stripDiacritics(str){
+
+    if(noSquiggles==false){
+        return str;
+    }
+
+    var answer='';
+    for(var i=0;i<str.length;i++){
+        var ch=str[i];
+        var chindex=ch.charCodeAt(0)-192;   // Index of character code in the strip string
+        if(chindex>=0 && chindex<stripstring.length){
+            // Character is within our table, so we can strip the accent...
+            var outch=stripstring.charAt(chindex);
+            // ...unless it was shown as a '.'
+            if(outch!='.')ch=outch;
+        }
+        answer+=ch;
+    }
+    return answer;
+}
+
+// http://stackoverflow.com/questions/3446170/escape-string-for-use-in-javascript-regex
+// NOTE: must escape every \ in the export code because of the JabRef Export...
+function escapeRegExp(str) {
+  return str.replace(/[-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+}
+
+function toggleInfo(articleid,info) {
+
+	var entry = document.getElementById(articleid);
+	var abs = document.getElementById('abs_'+articleid);
+	var rev = document.getElementById('rev_'+articleid);
+	var bib = document.getElementById('bib_'+articleid);
+	
+	if (abs && info == 'abstract') {
+		abs.className.indexOf('noshow') == -1?abs.className = 'abstract noshow':abs.className = 'abstract show';
+	} else if (rev && info == 'comment') {
+		rev.className.indexOf('noshow') == -1?rev.className = 'comment noshow':rev.className = 'comment show';
+	} else if (bib && info == 'bibtex') {
+		bib.className.indexOf('noshow') == -1?bib.className = 'bibtex noshow':bib.className = 'bibtex show';
+	} else { 
+		return;
+	}
+
+	// check if one or the other is available
+	var revshow; var absshow; var bibshow;
+	(abs && abs.className.indexOf('noshow') == -1)? absshow = true: absshow = false;
+	(rev && rev.className.indexOf('noshow') == -1)? revshow = true: revshow = false;	
+	(bib && bib.className.indexOf('noshow') == -1)? bibshow = true: bibshow = false;
+	
+	// highlight original entry
+	if(entry) {
+		if (revshow || absshow || bibshow) {
+		entry.className = 'entry highlight show';
+		} else {
+		entry.className = 'entry show';
+		}
+	}
+	
+	// When there's a combination of abstract/comment/bibtex showing, need to add class for correct styling
+	if(absshow) {
+		(revshow||bibshow)?abs.className = 'abstract nextshow':abs.className = 'abstract';
+	} 
+	if (revshow) {
+		bibshow?rev.className = 'comment nextshow': rev.className = 'comment';
+	}	
+	
+}
+
+function setStatistics (hits) {
+	if(hits < 0) { hits=numEntries; }
+	if(stats) { stats.firstChild.data = hits + '/' + numEntries}
+}
+
+function getTextContent(node) {
+	// Function written by Arve Bersvendsen
+	// http://www.virtuelvis.com
+	
+	if (node.nodeType == 3) {
+	return node.nodeValue;
+	} // text node
+	if (node.nodeType == 1 && node.className != "infolinks") { // element node
+	var text = [];
+	for (var chld = node.firstChild;chld;chld=chld.nextSibling) {
+		text.push(getTextContent(chld));
+	}
+	return text.join("");
+	} return ""; // some other node, won't contain text nodes.
+}
+
+function showAll(){
+	closeAllInfo();
+	for (var i = 0; i < numEntries; i++){ entryRows[i].className = 'entry show'; }
+}
+
+function closeAllInfo(){
+	for (var i=0; i < numInfo; i++){
+		if (infoRows[i].className.indexOf('noshow') ==-1) {
+			infoRows[i].className = infoRows[i].className + ' noshow';
+		}
+	}
+}
+
+function clearQS() {
+	qsfield.value = '';
+	showAll();
+}
+
+function redoQS(){
+	showAll();
+	quickSearch(qsfield);
+}
+
+function updateSetting(obj){
+	var option = obj.id;
+	var checked = obj.value;
+
+	switch(option)
+	 {
+	 case "opt_searchAbs":
+	   searchAbstract=!searchAbstract;
+	   redoQS();
+	   break;
+	 case "opt_searchComment":
+	   searchComment=!searchComment;
+	   redoQS();
+	   break;
+	 case "opt_useRegExp":
+	   searchRegExp=!searchRegExp;
+	   redoQS();
+	   break;
+	 case "opt_noAccents":
+	   noSquiggles=!noSquiggles;
+	   loadTableData();
+	   redoQS();
+	   break;
+	 }
+}
+
+function initPreferences(){
+	if(searchAbstract){document.getElementById("opt_searchAbs").checked = true;}
+	if(searchComment){document.getElementById("opt_searchComment").checked = true;}
+	if(noSquiggles){document.getElementById("opt_noAccents").checked = true;}
+	if(searchRegExp){document.getElementById("opt_useRegExp").checked = true;}
+	
+	if(numAbs==0) {document.getElementById("opt_searchAbs").parentNode.style.display = 'none';}
+	if(numRev==0) {document.getElementById("opt_searchComment").parentNode.style.display = 'none';}	
+}
+
+function toggleSettings(){
+	var togglebutton = document.getElementById('showsettings');
+	var settings = document.getElementById('settings');
+	
+	if(settings.className == "hidden"){
+		settings.className = "show";
+		togglebutton.innerText = "close settings";
+		togglebutton.textContent = "close settings";
+	}else{
+		settings.className = "hidden";
+		togglebutton.innerText = "settings...";		
+		togglebutton.textContent = "settings...";
+	}
+}
+
+-->
+</script>
+<style type="text/css">
+body { background-color: white; font-family: Arial, sans-serif; font-size: 13px; line-height: 1.2; padding: 1em; color: #2E2E2E; width: 50em; margin: auto auto; }
+
+form#quicksearch { width: auto; border-style: solid; border-color: gray; border-width: 1px 0px; padding: 0.7em 0.5em; display:none; position:relative; }
+span#searchstat {padding-left: 1em;}
+
+div#settings { margin-top:0.7em; /* border-bottom: 1px transparent solid; background-color: #efefef; border: 1px grey solid; */ }
+div#settings ul {margin: 0; padding: 0; }
+div#settings li {margin: 0; padding: 0 1em 0 0; display: inline; list-style: none; }
+div#settings li + li { border-left: 2px #efefef solid; padding-left: 0.5em;}
+div#settings input { margin-bottom: 0px;}
+
+div#settings.hidden {display:none;}
+
+#showsettings { border: 1px grey solid; padding: 0 0.5em; float:right; line-height: 1.6em; text-align: right; }
+#showsettings:hover { cursor: pointer; }
+
+.invalidsearch { background-color: red; }
+input[type="button"] { background-color: #efefef; border: 1px #2E2E2E solid;}
+
+table { border: 1px gray none; width: 100%; empty-cells: show; border-spacing: 0em 0.1em; margin: 1em 0em; }
+th, td { border: none; padding: 0.5em; vertical-align: top; text-align: justify; }
+
+td a { color: navy; text-decoration: none; }
+td a:hover  { text-decoration: underline; }
+
+tr.noshow { display: none;}
+tr.highlight td { background-color: #EFEFEF; border-top: 2px #2E2E2E solid; font-weight: bold; }
+tr.abstract td, tr.comment td, tr.bibtex td { background-color: #EFEFEF; text-align: justify; border-bottom: 2px #2E2E2E solid; }
+tr.nextshow td { border-bottom-style: none; }
+
+tr.bibtex pre { width: 100%; overflow: auto; white-space: pre-wrap;}
+p.infolinks { margin: 0.3em 0em 0em 0em; padding: 0px; }
+
+@media print {
+	p.infolinks, #qs_settings, #quicksearch, t.bibtex { display: none !important; }
+	tr { page-break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+
+<form action="" id="quicksearch">
+<input type="text" id="qs_field" autocomplete="off" placeholder="Type to search..." /> <input type="button" onclick="clearQS()" value="clear" />
+<span id="searchstat">Matching entries: <span id="stat">0</span></span>
+<div id="showsettings" onclick="toggleSettings()">settings...</div>
+<div id="settings" class="hidden">
+<ul>
+<li><input type="checkbox" class="search_setting" id="opt_searchAbs" onchange="updateSetting(this)"><label for="opt_searchAbs"> include abstract</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_searchComment" onchange="updateSetting(this)"><label for="opt_searchComment"> include comment</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_useRegExp" onchange="updateSetting(this)"><label for="opt_useRegExp"> use RegExp</label></li>
+<li><input type="checkbox" class="search_setting" id="opt_noAccents" onchange="updateSetting(this)"><label for="opt_noAccents"> ignore accents</label></li>
+</ul>
+</div>
+</form>
+<table id="qs_table" border="1">
+<tbody>
+<tr id="Popov2023" class="entry">
+	<td>Popov R and Karpenko N (2023), <i>"Implementation of Visitor Pattern in C++by Using std::variant"</i>, In Promising trends of modern electronics, informational and computer systems. Dnipro, Ukraine, October, 2023.  Vol. 8(8), pp. 21, 22. PE &laquo;Lira LTD&raquo;.
+	<p class="infolinks">[<a href="javascript:toggleInfo('Popov2023','abstract')">Abstract</a>] [<a href="javascript:toggleInfo('Popov2023','bibtex')">BibTeX</a>] [<a href="http://meics.dnure.dp.ua/files/MEICS-2023.pdf" target="_blank">URL</a>]</p>
+	</td>
+</tr>
+<tr id="abs_Popov2023" class="abstract noshow">
+	<td><b>Abstract</b>: In this paper we presented a new way to implement the Visitor pattern in C++ by using the standard container std::variant.<p>We have shown how this method solves the expression problem and simplifies the creation of compilers and interpreters.<p>We compared the classical approach with ours and highlighted all the pros and cons of the new solution.</td>
+</tr>
+<tr id="bib_Popov2023" class="bibtex noshow">
+<td><b>BibTeX</b>:
+<pre>
+@inproceedings{Popov2023,
+  author = {Popov, Ruslan and Karpenko, Nadiia},
+  editor = {O. Ivanchenko},
+  title = {Implementation of Visitor Pattern in C++by Using std::variant},
+  booktitle = {Promising trends of modern electronics, informational and computer systems},
+  publisher = {PE &laquo;Lira LTD&raquo;},
+  year = {2023},
+  volume = {8},
+  number = {8},
+  pages = {21, 22},
+  url = {http://meics.dnure.dp.ua/files/MEICS-2023.pdf}
+}
+</pre></td>
+</tr>
+<tr id="Popov2024a" class="entry">
+	<td>Popov R and Karpenko N (2024), <i>"Problems of Using LaTeX and BibTeX Systems in the Ukrainian Scientific Environment"</i>, In International scientific practical conference &laquo;Information technologies and automation-- 2024&raquo;., October, 2024.  Vol. 17
+	<p class="infolinks">[<a href="javascript:toggleInfo('Popov2024a','abstract')">Abstract</a>] [<a href="javascript:toggleInfo('Popov2024a','bibtex')">BibTeX</a>] [<a href="https://ontu.edu.ua/itia" target="_blank">URL</a>]</p>
+	</td>
+</tr>
+<tr id="abs_Popov2024a" class="abstract noshow">
+	<td><b>Abstract</b>: The thesis deals with the problems of using LaTeX and BibTeX systems in the scientific environment in Ukraine. It is shown that despite the high level of digitalization of the scientific process in Ukraine, these tools for preparing scientific texts and managing bibliography have not yet found wide application in Ukrainian universities. The main problems faced by researchers when using LaTeX, including software installation, Cyrillic alphabet settings, and formatting management, are investigated. The shortcomings of BibTeX are identified, in particular, the lack of an official citation style in accordance with DSTU. It is emphasized that LaTeX and BibTeX can greatly facilitate the process of writing scientific articles and managing bibliographies if the existing problems are solved. The possibilities of further implementation of these systems in scientific practice in Ukraine are discussed.</td>
+</tr>
+<tr id="bib_Popov2024a" class="bibtex noshow">
+<td><b>BibTeX</b>:
+<pre>
+@inproceedings{Popov2024a,
+  author = {Popov, Ruslan and Karpenko, Nadiia},
+  editor = {Kotlyk, S.},
+  title = {Problems of Using LaTeX and BibTeX Systems in the Ukrainian Scientific Environment},
+  booktitle = {International scientific practical conference &laquo;Information technologies and automation-- 2024&raquo;},
+  year = {2024},
+  volume = {17},
+  url = {https://ontu.edu.ua/itia}
+}
+</pre></td>
+</tr>
+<tr id="Popov2024b" class="entry">
+	<td>Popov R and Karpenko N (2024), <i>"The Problem of Software Editing of Microsoft Word Documents"</i>, In VІII International Scientific and Practical Conference "Mechatronic Systems: Innovations and Engineering"., October, 2024.  Vol. 8(17) Zenodo.
+	<p class="infolinks"> [<a href="javascript:toggleInfo('Popov2024b','bibtex')">BibTeX</a>] [<a href="https://doi.org/10.5281/ZENODO.14047954" target="_blank">DOI</a>] [<a href="https://en.msie.knutd.edu.ua/" target="_blank">URL</a>]</p>
+	</td>
+</tr>
+<tr id="bib_Popov2024b" class="bibtex noshow">
+<td><b>BibTeX</b>:
+<pre>
+@inproceedings{Popov2024b,
+  author = {Popov, Ruslan and Karpenko, Nadiia},
+  editor = {Antonina Volivach},
+  title = {The Problem of Software Editing of Microsoft Word Documents},
+  booktitle = {VІII International Scientific and Practical Conference "Mechatronic Systems: Innovations and Engineering"},
+  publisher = {Zenodo},
+  year = {2024},
+  volume = {8},
+  number = {17},
+  url = {https://en.msie.knutd.edu.ua/},
+  doi = {10.5281/ZENODO.14047954}
+}
+</pre></td>
+</tr>
+<tr id="Popov2024" class="entry">
+	<td>Popov R and Karpenko N (2024), <i>"Automatic Solving of Physics Word Problems"</i>, Automation of technological and business processes., May, 2024.  Vol. 16(2), pp. 87-96. Odesa National University of Technology.
+	<p class="infolinks">[<a href="javascript:toggleInfo('Popov2024','abstract')">Abstract</a>] [<a href="javascript:toggleInfo('Popov2024','bibtex')">BibTeX</a>] [<a href="https://doi.org/10.15673/atbp.v16i2.2853" target="_blank">DOI</a>] [<a href="https://journals.ontu.edu.ua/index.php/atbp/article/view/2853" target="_blank">URL</a>]</p>
+	</td>
+</tr>
+<tr id="abs_Popov2024" class="abstract noshow">
+	<td><b>Abstract</b>: We present a system that solves simple physics word problems (PWPs) stated in the English language. The main feature of the system is that it is deterministic and yields a correct solution based on real physics formulas. The program generates the solution in a tabular form, showing givens, unknowns, and solution steps. <p>We performed a thorough analysis on the previous work in this field. Most of the research was accumulated in math word problem (MWP) solvers. We have found that these programs are not capable of solving problems from Ukrainian physics textbooks. <p>We identified several types of physics problems: theoretical, value conversion, value comparison, unknowns finding, value change. We developed separate problem-solving strategies for each type. <p>The program uses named entity recognition (NER), a technique in natural language processing (NLP), to identify key elements in the problem text. We created a set of rules for marking these entities. Then, problem type recognition is performed. Depending on the type, the list of entities is converted into the internal problem representation. <p>Value conversion and comparison problems are easy to handle. We developed a recursive algorithm for solving unknowns-finding problems which turned out to be a simplified version of Stanford Research Institute Problem Solver (STRIPS) algorithm. However, developing a universal algorithm for solving value-change problems presents a significant challenge. We believe this problem type belongs to the NP-hard class, indicating inherent difficulty in finding optimal solutions. <p>The interface of the program is a web-application. The user can type the problem text and see the solution on a web page. Additionally, the result of NER is presented. <p>Constructing a general problem solver is challenging. While our program can solve basic physics problems, complex problems involving forces, energy, etc., remain unsolved. However, our solver has great potential for future development. We have thoroughly analyzed its capabilities and limitations and proposed ideas for future research.</td>
+</tr>
+<tr id="bib_Popov2024" class="bibtex noshow">
+<td><b>BibTeX</b>:
+<pre>
+@article{Popov2024,
+  author = {Popov, R. and Karpenko, N.},
+  title = {Automatic Solving of Physics Word Problems},
+  journal = {Automation of technological and business processes},
+  publisher = {Odesa National University of Technology},
+  year = {2024},
+  volume = {16},
+  number = {2},
+  pages = {87--96},
+  url = {https://journals.ontu.edu.ua/index.php/atbp/article/view/2853},
+  doi = {10.15673/atbp.v16i2.2853}
+}
+</pre></td>
+</tr>
+<tr id="Popov2024c" class="entry">
+	<td>Popov R and Karpenko N (2024), <i>"Use of Local Language Models"</i>, In IV Student Scientific and Technical Conference "information, Functional and Cybersecurity"., November, 2024.  Vol. 4
+	<p class="infolinks"> [<a href="javascript:toggleInfo('Popov2024c','comment')">Comment</a>]  [<a href="javascript:toggleInfo('Popov2024c','bibtex')">BibTeX</a>]</p>
+	</td>
+</tr>
+<tr id="rev_Popov2024c" class="comment noshow">
+	<td><b>Comment</b>: NOT PUBLISHED YET</td>
+</tr>
+<tr id="bib_Popov2024c" class="bibtex noshow">
+<td><b>BibTeX</b>:
+<pre>
+@inproceedings{Popov2024c,
+  author = {Popov, Ruslan and Karpenko, Nadiia},
+  title = {Use of Local Language Models},
+  booktitle = {IV Student Scientific and Technical Conference "information, Functional and Cybersecurity"},
+  year = {2024},
+  volume = {4}
+}
+</pre></td>
+</tr>
+</tbody>
+</table>
+<footer>
+ <small>Created by <a href="https://www.jabref.org">JabRef</a> on 2024/11/14.</small>
+</footer>
+<!-- file generated by JabRef -->
+</body>
+</html>
